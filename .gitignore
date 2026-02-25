@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Lingkungan Virtual Python
+venv/
+env/
+.env/
+.venv/
+env.bak/
+venv.bak/
+
+# Dataset & Checkpoints (Abaikan file besar)
+dataset/
+*.pth
+*.pt
+input_ujicoba/
+hasil_ujicoba/
+
+# IDE Configuration
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
