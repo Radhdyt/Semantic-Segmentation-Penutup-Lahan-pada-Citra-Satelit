@@ -1,24 +1,34 @@
 # Semantic Segmentation Penutup Lahan pada Citra Satelit
 
-Repositori ini berisi implementasi lengkap model Deep Learning (Arsitektur U-Net) ber-resolusi tinggi untuk melakukan segmentasi semantik tutupan lahan (Land Cover) menggunakan citra satelit (seperti dataset LandCover.ai).
+Implementasi model Deep Learning (arsitektur **U-Net**) resolusi tinggi untuk segmentasi semantik tutupan lahan (Land Cover) dari citra satelit berbasis dataset **LandCover.ai**.
 
-Sistem ini dirancang khusus untuk keperluan akademis (Skripsi/Tugas Akhir) sehingga murni berbasis pipeline Python yang bersih, terstruktur, dan mudah diproduksi ulang (reproducible) tanpa antarmuka (GUI) yang memakan memori.
+Dibuat untuk keperluan akademis (Skripsi/Tugas Akhir): pipeline Python murni, bersih, terstruktur, dan reproducible tanpa GUI.
+
+## Tech Stack
+
+| Layer | Teknologi |
+|-------|-----------|
+| Model | U-Net (PyTorch) |
+| Input | Citra satelit (JPG/TIF), mask PNG/TIF |
+| Dataset | Format LandCover.ai (train/val/test split) |
+| Inference | Sliding window patch-based (tanpa resize, jaga resolusi HD) |
+| Visualisasi | Automatic overlay side-by-side (alpha-blended) |
 
 ## Fitur Utama
 
-- **U-Net Architecture**: Model standar yang sudah terbukti andal dalam membedakan fitur spasial geografis.
-- **Sliding Window Inference**: Skrip uji coba tidak melakukan _resize_ pada gambar asli yang besar, melainkan memindai berulang kali lapis demi lapis (_patch-based_) untuk menjaga resolusi bangunan/jalan tetap HD dan tajam.
-- **Auto-Save Checkpoints**: Pelatihan model dapat dijeda/dihentikan di tengah jalan dan akan otomatis dilanjutkan (_resume_) dari epoch terakhir yang berhasil diselesaikan.
-- **Automatic Overlay Visualization**: Hasil tebakan langsung disandingkan (_subplot_) secara berdampingan dengan gambar aslinya dengan _alpha-blended overlay_.
+- **U-Net Architecture**: arsitektur standar yang terbukti andal untuk fitur spasial geografis.
+- **Sliding Window Inference**: tidak me-resize gambar asli, melainkan memindai patch-by-patch untuk menjaga ketajaman bangunan/jalan.
+- **Auto-Save Checkpoints**: training bisa dijeda/dilanjutkan (resume) dari epoch terakhir.
+- **Automatic Overlay Visualization**: hasil prediksi disandingkan dengan gambar asli (subplot + alpha-blend).
 
 ## Struktur Kelas Area (Warna)
 
-Model ini secara bawaan dilatih untuk mendeteksi 4 kelas area utama:
-
-1. **Pasir/Background/Jalan** (Kuning) - Label `0`
-2. **Bangunan** (Coklat) - Label `1`
-3. **Vegetasi/Hutan** (Hijau) - Label `2`
-4. **Perairan/Lautan** (Biru) - Label `3`
+| Label | Kelas | Warna |
+|-------|-------|-------|
+| 0 | Pasir/Background/Jalan | Kuning |
+| 1 | Bangunan | Coklat |
+| 2 | Vegetasi/Hutan | Hijau |
+| 3 | Perairan/Lautan | Biru |
 
 ---
 
@@ -26,9 +36,7 @@ Model ini secara bawaan dilatih untuk mendeteksi 4 kelas area utama:
 
 ### 1. Persiapan Lingkungan (Prerequisites)
 
-Pastikan Python 3.8+ sudah terinstall. Sangat disarankan untuk menggunakan GPU (NVIDIA CUDA) agar proses training berjalan cepat.
-
-Install semua _library_ yang dibutuhkan dengan perintah berikut:
+Python 3.8+. Disarankan GPU (NVIDIA CUDA) agar training cepat.
 
 ```bash
 pip install -r requirements.txt
@@ -36,7 +44,7 @@ pip install -r requirements.txt
 
 ### 2. Persiapan Dataset
 
-Siapkan dataset Anda (format `.jpg`/`.tif` untuk gambar dan `.png`/`.tif` untuk mask) lalu susun ke dalam folder `dataset/` dengan struktur seperti ini:
+Struktur folder `dataset/`:
 
 ```text
 dataset/
@@ -48,34 +56,32 @@ dataset/
 └── test.txt            # Berisi list nama file untuk diuji
 ```
 
-_Note: Script `unet_segmentation_pipeline.py` akan otomatis membaca file `.jpg` dan `_m.png` dari dalam folder `dataset/output/`._
+_Note: `unet_segmentation_pipeline.py` otomatis membaca file `.jpg` dan `_m.png` dari `dataset/output/`._
 
 ### 3. Melatih Model (Training)
 
-Untuk mulai melatih model dari awal (atau melanjutkan _checkpoint_ yang terhenti), jalankan skrip utama:
+Train dari awal atau lanjutkan checkpoint yang terhenti:
 
 ```bash
 python unet_segmentation_pipeline.py
 ```
 
-Model akan menyimpan _progress_-nya di dalam folder `dataset/checkpoints/unet_checkpoint.pth`.
+Progress tersimpan di `dataset/checkpoints/unet_checkpoint.pth`.
 
 ### 4. Uji Coba Model (Inference)
 
-Jika Anda ingin menguji kepintaran model pada gambar pulau yang baru (di luar dataset awal):
-
-1. Masukkan gambar-gambar satelit Anda ke dalam folder `input_ujicoba/`.
-2. Jalankan skrip inference:
+1. Masukkan gambar satelit baru ke folder `input_ujicoba/`.
+2. Jalankan skrip inference (`python.py`):
 
 ```bash
 python python.py
 ```
 
-3. Jendela visualisasi _side-by-side_ akan muncul menampilkan detail _Zoom-in_ akurasi model. Tutup jendela (`X`) untuk beralih ke gambar pengujian selanjutnya secara otomatis.
+3. Visualisasi side-by-side muncul dengan detail zoom-in akurasi model. Tutup jendela (`X`) untuk lanjut ke gambar berikutnya.
 
 ---
 
-## 📝 Catatan Tambahan untuk Repositori Clone
+## 📝 Catatan untuk Repositori Clone
 
-- File berukuran raksasa seperti _dataset_ gambar ribuan file dan _checkpoint_ bobot AI (`.pth`) telah diabaikan (`.gitignore`) agar tidak membebani proses _upload/clone_ GitHub.
-- Jika Anda melakukan _clone_, Anda harus menyediakan dataset dan melatih ulang modelnya dari awal di PC Anda sendiri menggunakan `unet_segmentation_pipeline.py`.
+- File besar (dataset gambar ribuan file, checkpoint `.pth`) diabaikan via `.gitignore`.
+- Setelah clone, sediakan dataset sendiri dan latih ulang model dengan `unet_segmentation_pipeline.py`.
